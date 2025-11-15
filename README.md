@@ -13,7 +13,7 @@
 - Python
 - FastAPI (v0.95.0 or higher)
 - Docker and Docker Compose
-- 
+  
 ## Requirements
 
 This project uses environment variables for configuratSion. You need to create a .env file in the root of the project.
