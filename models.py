@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
 from pydantic import ConfigDict
+from decimal import Decimal
 from datetime import datetime
 
 class UserBase(BaseModel):
@@ -41,3 +42,15 @@ class RecordCreate(RecordBase):
 
 class Record(RecordBase):
     id: int
+
+
+class AccountBase(BaseModel):
+    user_id: int
+    model_config = ConfigDict(from_attributes=True)
+
+class Account(AccountBase):
+    id: int
+    balance: Decimal
+
+class AccountDeposit(BaseModel):
+    amount: Decimal = Field(..., gt=0)

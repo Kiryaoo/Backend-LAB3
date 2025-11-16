@@ -1,8 +1,13 @@
 from fastapi import FastAPI, HTTPException, Query, Depends
-from models import User, UserCreate, Category, CategoryCreate, Record, RecordCreate
+from models import (
+    User, UserCreate,
+    Category, CategoryCreate,
+    Record, RecordCreate,
+    Account, AccountDeposit,
+)
 from sqlalchemy.orm import Session
 from database import get_db, init_db
-from db_models import UserORM, CategoryORM, RecordORM
+from db_models import UserORM, CategoryORM, RecordORM, AccountORM
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
 from datetime import datetime
@@ -69,6 +74,10 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.add(obj)
     db.commit()
     db.refresh(obj)
+    acc = AccountORM(user_id=obj.id, balance=0)
+    db.add(acc)
+    db.commit()
+    db.refresh(obj)
     return obj
 
 @app.get("/users/{user_id}", response_model=User)
@@ -125,13 +134,23 @@ def create_record(record: RecordCreate, db: Session = Depends(get_db)):
         raise HTTPException(404, "User not found")
     if not db.query(CategoryORM).filter(CategoryORM.id == record.category_id).first():
         raise HTTPException(404, "Category not found")
+    acc = db.query(AccountORM).filter(AccountORM.user_id == record.user_id).first()
+    if not acc:
+        raise HTTPException(404, "Account not found")
+    if acc.balance is None:
+        acc.balance = 0
+    if acc.balance < record.amount:
+        raise HTTPException(400, "Insufficient funds")
+
+    acc.balance = acc.balance - record.amount
     obj = RecordORM(
         user_id=record.user_id,
         category_id=record.category_id,
         amount=record.amount,
-        timestamp=record.timestamp
+        timestamp=record.timestamp,
     )
     db.add(obj)
+    db.add(acc)
     db.commit()
     db.refresh(obj)
     return obj
@@ -160,6 +179,32 @@ def delete_record(record_id: int, db: Session = Depends(get_db)):
     db.delete(obj)
     db.commit()
     return JSONResponse(status_code=204, content=None)
+
+@app.get("/accounts/{user_id}", response_model=Account)
+def get_account(user_id: int, db: Session = Depends(get_db)):
+    acc = db.query(AccountORM).filter(AccountORM.user_id == user_id).first()
+    if not acc:
+        raise HTTPException(404, "Account not found")
+    return acc
+
+
+@app.post("/accounts/{user_id}/deposit", response_model=Account)
+def deposit_account(user_id: int, payload: AccountDeposit, db: Session = Depends(get_db)):
+    acc = db.query(AccountORM).filter(AccountORM.user_id == user_id).first()
+    if not acc:
+        user = db.query(UserORM).filter(UserORM.id == user_id).first()
+        if not user:
+            raise HTTPException(404, "User not found")
+        acc = AccountORM(user_id=user_id, balance=0)
+        db.add(acc)
+        db.flush()
+    if acc.balance is None:
+        acc.balance = 0
+    acc.balance = acc.balance + payload.amount
+    db.add(acc)
+    db.commit()
+    db.refresh(acc)
+    return acc
 
 
 @app.get("/")

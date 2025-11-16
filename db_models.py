@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Numeric
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
@@ -10,6 +10,7 @@ class UserORM(Base):
     name = Column(String(50), nullable=False)
 
     records = relationship("RecordORM", back_populates="user")
+    account = relationship("AccountORM", back_populates="user", uselist=False)
 
 class CategoryORM(Base):
     __tablename__ = "categories"
@@ -30,3 +31,13 @@ class RecordORM(Base):
 
     user = relationship("UserORM", back_populates="records")
     category = relationship("CategoryORM", back_populates="records")
+
+
+class AccountORM(Base):
+    __tablename__ = "accounts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
+    balance = Column(Numeric(14, 2), nullable=False, default=0)
+
+    user = relationship("UserORM", back_populates="account")
