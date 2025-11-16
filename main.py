@@ -6,12 +6,48 @@ from db_models import UserORM, CategoryORM, RecordORM
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
 from datetime import datetime
+from fastapi.openapi.docs import get_swagger_ui_html
+from config import (
+    API_TITLE,
+    API_VERSION,
+    OPENAPI_URL_PREFIX,
+    OPENAPI_SWAGGER_UI_PATH,
+    OPENAPI_SWAGGER_UI_URL,
+    REDOC_PATH,
+)
+from contextlib import asynccontextmanager
 
-app = FastAPI(title="Expense Tracker API")
+app = FastAPI(
+    title=API_TITLE,
+    version=API_VERSION,
+    openapi_url=f"{OPENAPI_URL_PREFIX}openapi.json",
+    docs_url=None,  
+    redoc_url=REDOC_PATH,
+)
 
-@app.lifespan("startup")
-def on_startup():
+@asynccontextmanager
+async def app_lifespan(app: FastAPI):
     init_db()
+    yield
+
+app = FastAPI(
+    title=API_TITLE,
+    version=API_VERSION,
+    openapi_url=f"{OPENAPI_URL_PREFIX}openapi.json",
+    docs_url=None,  # disable default docs to serve custom swagger using CDN
+    redoc_url=REDOC_PATH,
+    lifespan=app_lifespan,
+)
+
+
+@app.get(OPENAPI_SWAGGER_UI_PATH, include_in_schema=False)
+def custom_swagger_ui():
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title=f"{API_TITLE} - Swagger UI",
+        swagger_js_url=f"{OPENAPI_SWAGGER_UI_URL}/swagger-ui-bundle.js",
+        swagger_css_url=f"{OPENAPI_SWAGGER_UI_URL}/swagger-ui.css",
+    )
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
