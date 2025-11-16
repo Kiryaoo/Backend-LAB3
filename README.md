@@ -6,7 +6,7 @@
 
 **Each lab builds on the previous one**
 
-**Deploy:** [https://backend-lab2-z6jf.onrender.com](https://backend-lab2-z6jf.onrender.com)
+**Deploy:** [https://backend-lab3-u65x.onrender.com](https://backend-lab3-u65x.onrender.com)
 
 ## Requirements
 
