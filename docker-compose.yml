@@ -4,18 +4,19 @@ services:
     container_name: backend_lab2_app
     ports:
       - "8000:8000"
-    # Mount project directory into container. Remove :ro to allow live-reload during development.
     volumes:
       - ./:/app
     environment:
       - PYTHONUNBUFFERED=1
+    env_file: .env  
     depends_on:
       - db
     restart: unless-stopped
 
   db:
-    image: postgres:15
+    image: postgres:17
     environment:
+      POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:

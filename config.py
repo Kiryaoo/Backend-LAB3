@@ -1,4 +1,9 @@
 import os
+from dotenv import load_dotenv
+from urllib.parse import quote_plus
+
+# Load variables from a local .env file if present (works both locally and in Docker)
+load_dotenv()
 
 # Debug/behavior flags
 PROPAGATE_EXCEPTIONS: bool = True
@@ -20,12 +25,13 @@ def _build_database_url() -> str:
     if explicit:
         return explicit
     if os.getenv("POSTGRES_PASSWORD"):
-        user = os.getenv("POSTGRES_USER", "postgres")
-        password = os.getenv("POSTGRES_PASSWORD", "")
+        # URL-encode user & password to safely handle special characters
+        user = quote_plus(os.getenv("POSTGRES_USER", "postgres"))
+        password = quote_plus(os.getenv("POSTGRES_PASSWORD", ""))
         host = os.getenv("POSTGRES_HOST", "db")
         port = os.getenv("POSTGRES_PORT", "5432")
-        db = os.getenv("POSTGRES_DB", "postgres")
-        return f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}"
+        db = os.getenv("POSTGRES_DB", "LAB3")
+        return f"postgresql+psycopg://{user}:{password}@{host}:{port}/{db}"
     return "sqlite:///./app.db"
 
 DATABASE_URL: str = _build_database_url()
