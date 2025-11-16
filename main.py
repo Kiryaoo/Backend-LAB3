@@ -1,7 +1,17 @@
 from fastapi import FastAPI, HTTPException, Query
 from models import User, Category, Record
 from data import users, categories, records
-from datetime import datetime
+from fastapi.responses import JSONResponse
+from fastapi.requests import Request
+
+app = FastAPI()
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": exc.detail, "status": exc.status_code},
+    )
 
 app = FastAPI(title="Expense Tracker API")
 
