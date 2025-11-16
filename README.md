@@ -81,7 +81,9 @@ To stop containers:
 docker compose down
 ```
 
-## Health Check
+## Endpoints
+
+### Health Check
 
 After starting, check the service's health:
 
@@ -92,3 +94,20 @@ Expected response:
 ```
 {"status":"ok"}
 ```
+### Users 
+
+`http://localhost:8000/users`
+
+### Categories
+
+`http://localhost:8000/categories`
+
+### Records 
+
+`http://localhost:8000/records`
+
+### Other 
+
+`http://127.0.0.1:8000/docs`
+
+Follow this link you can test all of used methods like POST,GET, etc. and all endpoints
