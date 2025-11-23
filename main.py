@@ -98,7 +98,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(404, "User not found")
     db.delete(obj)
     db.commit()
-    return JSONResponse(status_code=204, content=None)
+    # return JSONResponse(status_code=204, content=None)
 
 @app.post("/categories/", response_model=Category, status_code=201)
 def create_category(category: CategoryCreate, db: Session = Depends(get_db)):
@@ -126,7 +126,7 @@ def delete_category(category_id: int, db: Session = Depends(get_db)):
         raise HTTPException(404, "Category not found")
     db.delete(obj)
     db.commit()
-    return JSONResponse(status_code=204, content=None)
+    # return JSONResponse(status_code=204, content=None)
 
 @app.post("/records/", response_model=Record, status_code=201)
 def create_record(record: RecordCreate, db: Session = Depends(get_db)):
