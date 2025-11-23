@@ -2,8 +2,8 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 from dotenv import load_dotenv
-from config import DATABASE_URL       # твій DATABASE_URL з config.py
-from database import Base             # declarative_base з database.py
+from config import DATABASE_URL      
+from database import Base            
 import db_models
 
 load_dotenv()
