@@ -179,7 +179,6 @@ def delete_record(record_id: int, db: Session = Depends(get_db)):
         raise HTTPException(404, "Record not found")
     db.delete(obj)
     db.commit()
-    return JSONResponse(status_code=204, content=None)
 
 @app.get("/accounts/{user_id}", response_model=Account)
 def get_account(user_id: int, db: Session = Depends(get_db)):
